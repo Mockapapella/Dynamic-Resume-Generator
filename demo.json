@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "company": "demo company",
+    "job": "demo job name"
+  },
+  "name": "John Smith",
+  "title": "Senior Software Developer",
+  "location": "\ud83c\udf0d Location: Small Town, United States",
+  "email": "\ud83d\udce7 Email: john.smith@mysite.com",
+  "cell number": "\ud83d\udcde Cell Number: 1-123-456-7890",
+  "personal website": "\ud83c\udf10 Personal Website: https://www.mysite.com",
+  "linkedin": "\ud83c\udf10 LinkedIn: https://www.linkedin.com/in/<name>",
+  "github": "\ud83c\udf10 GitHub: https://github.com/<username>",
+  "description": "I write a lot of software",
+  "experience": {
+    "Independent Contractor": {
+      "include": true,
+      "title": "Senior Software Developer",
+      "company": "Independent Contractor",
+      "employment type": "Full Time",
+      "duration": [
+        "Sep 2020",
+        "Current"
+      ],
+      "reference": null,
+      "description": "I build website for my clients.",
+      "techstack": [
+        "Wordpress",
+        "PHP"
+      ]
+    }
+  },
+  "education": {
+    "Generic School": {
+      "include": true,
+      "school": "Generic School",
+      "degree": "Bachelor's Degree",
+      "field": "Computer Networking",
+      "duration": [
+        "2017",
+        "2019"
+      ],
+      "gpa": "3.4",
+      "activities and societies": [
+        "Activity 1",
+        "Greek life"
+      ],
+      "description": null
+    }
+  },
+  "licenses and certifications": {
+    "Security Pro": {
+      "include": false,
+      "name": "Security Pro",
+      "issuer": "Security Corporation",
+      "issued on": "May 2018",
+      "expiration date": null,
+      "credential id": "C-132"
+    }
+  },
+  "volunteer experience": {
+    "Homeless Shelter": {
+      "include": true,
+      "organization": "Local Homeless Shelter",
+      "role": "Cook",
+      "cause": "Humanitarianism",
+      "duration": [
+        "Jan 2021",
+        "Current"
+      ],
+      "description": "I helped feed the homeless."
+    }
+  },
+  "accomplishments": {
+    "projects": {
+      "My Website": {
+        "include": true,
+        "name": "My website | Personal Blog",
+        "duration": [
+          "Sep 2020",
+          "Current"
+        ],
+        "link": "https://mysite.com/",
+        "description": "I built my own website to blog on.",
+        "techstack": [
+          "Wordpress",
+          "PHP",
+          "CSS",
+          "JavaScript"
+        ]
+      }
+    },
+    "honor and award": {
+      "Hackathon": {
+        "include": true,
+        "title": "First place hackathon winner",
+        "issuer": "Local Hackathon Committee",
+        "issued on": "Apr 2016",
+        "description": "I figured out how to reverse entropy"
+      }
+    },
+    "language": {
+      "french": {
+        "include": false,
+        "language": "French",
+        "proficiency": "Conversational"
+      }
+    }
+  }
+}
