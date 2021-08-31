@@ -35,6 +35,8 @@ document.styles["Heading 2"].paragraph_format.space_before = Pt(6)
 document.styles["Heading 2"].paragraph_format.space_after = Pt(1)
 document.styles["Heading 3"].paragraph_format.space_before = Pt(4)
 document.styles["Heading 3"].paragraph_format.space_after = Pt(1)
+document.styles["Heading 4"].paragraph_format.space_before = Pt(1)
+document.styles["Heading 4"].paragraph_format.space_after = Pt(1)
 
 document.add_paragraph().add_run(resume_json["name"]).font.size = Pt(24)
 document.add_paragraph().add_run(resume_json["title"]).font.size = Pt(16)
@@ -84,7 +86,7 @@ for component in resume_json:
                                         resume_json[component][subcomponent][item][tech_count],
                                         style="List Bullet",
                                     )
-                                    paragraph.paragraph_format.left_indent = Inches(0.75)
+                                    paragraph.paragraph_format.left_indent = Inches(0.6)
     elif component == "education":
         check_true = []
         for subcomponent in resume_json[component]:
@@ -120,7 +122,7 @@ for component in resume_json:
                                         resume_json[component][subcomponent][item][activity_count],
                                         style="List Bullet",
                                     )
-                                    paragraph.paragraph_format.left_indent = Inches(0.75)
+                                    paragraph.paragraph_format.left_indent = Inches(0.6)
     elif component == "licenses and certifications":
         check_true = []
         for subcomponent in resume_json[component]:
@@ -254,9 +256,7 @@ for component in resume_json:
                                                     ][item][tech_count],
                                                     style="List Bullet",
                                                 )
-                                                paragraph.paragraph_format.left_indent = Inches(
-                                                    0.75
-                                                )
+                                                paragraph.paragraph_format.left_indent = Inches(0.6)
                 if subcomponent == "honor and award":
                     check_true = []
                     for project_subcomponent in resume_json[component][subcomponent]:
