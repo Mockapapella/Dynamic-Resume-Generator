@@ -9,7 +9,7 @@ from docx2pdf import convert
 try:
     with open("resume.json", "r", encoding="utf8") as myfile:
         data = myfile.read()
-except NameError:
+except FileNotFoundError:
     with open("demo.json", "r", encoding="utf8") as myfile:
         data = myfile.read()
 
