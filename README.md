@@ -18,7 +18,7 @@ It uses `python-docx` to create the files. To use this tool you must have Micros
 
 # Setup
 
-This script uses Python 3.9.6. Make sure you have Microsoft Office Installed. Once cloned, enter:
+This script uses Python 3.9.6. Make sure you have Microsoft Office Installed. Once cloned, enter this in a bash terminal:
 
 ```
 python -m venv venv
