@@ -1,13 +1,19 @@
 import json
-from schemas import (
-    ApplicationInfo, General, Jobs, Education,
-    LicensesAndCertifications, VolunteerExperience,
-    Projects, HonorsAndAwards, Languages
-)
+
+from resume_generator.schemas import ApplicationInfo
+from resume_generator.schemas import Education
+from resume_generator.schemas import General
+from resume_generator.schemas import HonorsAndAwards
+from resume_generator.schemas import Jobs
+from resume_generator.schemas import Languages
+from resume_generator.schemas import LicensesAndCertifications
+from resume_generator.schemas import Projects
+from resume_generator.schemas import VolunteerExperience
+
 
 def test_demo_json_validation():
     """Test that demo.json matches our schema definitions"""
-    with open('demo.json', 'r') as f:
+    with open("demo.json", "r") as f:
         data = json.load(f)
 
     # Validate each section

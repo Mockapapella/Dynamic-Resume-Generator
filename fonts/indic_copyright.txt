@@ -1,5 +1,5 @@
 Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
-Name: ttf-indic-fonts-core 
+Name: ttf-indic-fonts-core
 Maintainer: Arne Goetje <arne@ubuntu.com>
 
 Files: *
@@ -81,7 +81,7 @@ License: GPL-2+
  Boston, MA  02110-1301 USA
  .
  On Debian systems, the complete text of the GNU General Public License,
- can be found in /usr/share/common-licenses/GPL-2 and 
+ can be found in /usr/share/common-licenses/GPL-2 and
  /usr/share/common-licenses/GPL-3.
 
 License: GPL-2+-BY-Font
@@ -103,7 +103,7 @@ License: GPL-2+-BY-Font
  Boston, MA  02110-1301 USA
  .
  On Debian systems, the complete text of the GNU General Public License,
- can be found in /usr/share/common-licenses/GPL-2 and 
+ can be found in /usr/share/common-licenses/GPL-2 and
  /usr/share/common-licenses/GPL-3.
  .
  As a special exception, if you create a document which uses this font,
@@ -115,4 +115,3 @@ License: GPL-2+-BY-Font
  you may extend this exception to your version of the font, but you
  are not obligated to do so. If you do not wish to do so, delete this
  exception statement from your version.
-

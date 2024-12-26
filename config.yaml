@@ -3,7 +3,7 @@ output_directory: "generated_applications"
 file_name_template: "Resume - {name} - {company} - {job} - {date}.pdf"
 
 # Default Template
-template: "modern"
+template: "minimal"
 
 # Templates Configuration
 templates:
