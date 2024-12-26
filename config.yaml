@@ -1,0 +1,74 @@
+# Resume PDF Settings
+output_directory: "generated_applications"
+file_name_template: "Resume - {name} - {company} - {job} - {date}.pdf"
+
+# Default Template
+template: "modern"
+
+# Templates Configuration
+templates:
+  modern:
+    # PDF Format
+    pdf_format: "letter"
+    cell_width: 190
+    cell_height: 4
+
+    # Font Configuration
+    fonts:
+      primary: "DejaVuSans"
+      bold: "DejaVuSans-Bold"
+      emoji: "TwitterEmojis"
+
+    # Font Sizes
+    font_size:
+      name: 24
+      title: 16
+      section_header: 14
+      job_title: 12
+      normal: 8
+
+    # Colors (RGB)
+    colors:
+      job_header: [64, 128, 128]
+      volunteer_header: [192, 128, 192]
+      project_header: [192, 128, 64]
+      text: [0, 0, 0]
+
+    # Section Spacing
+    spacing:
+      after_section: 2
+      after_item: 5
+
+  minimal:
+    pdf_format: "letter"
+    cell_width: 190
+    cell_height: 4
+
+    fonts:
+      primary: "DejaVuSans"
+      bold: "DejaVuSans-Bold"
+      emoji: "TwitterEmojis"
+
+    font_size:
+      name: 20
+      title: 14
+      section_header: 12
+      job_title: 10
+      normal: 8
+
+    colors:
+      job_header: [100, 100, 100]
+      volunteer_header: [100, 100, 100]
+      project_header: [100, 100, 100]
+      text: [0, 0, 0]
+
+    spacing:
+      after_section: 1
+      after_item: 3
+
+# Error Messages
+error_messages:
+  missing_resume: "resume.json file not found"
+  invalid_json: "Invalid JSON format in resume.json"
+  missing_font: "Required font file not found: {}"
+  invalid_template: "Template '{}' not found in configuration"

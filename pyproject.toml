@@ -1,0 +1,20 @@
+[project]
+name = "resume-generator"
+version = "0.1.0"
+description = "Generates resumes from JSON templates"
+requires-python = ">=3.13"
+dependencies = [
+    "fpdf2>=2.7.6",
+    "pydantic[email]>=2.5.2",
+    "PyYAML>=6.0.1",
+    "pytest>=8.0.0",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

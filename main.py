@@ -1,380 +1,338 @@
+from fpdf import FPDF, XPos, YPos
 import json
-from pathlib import Path
+import os
+import yaml
+from datetime import datetime
+from schemas import ApplicationInfo, General, Jobs, Education
+from schemas import LicensesAndCertifications, VolunteerExperience
+from schemas import HonorsAndAwards, Languages, Projects
+import warnings
 
-from docx import Document
-from docx.shared import Inches
-from docx.shared import Pt
-from docx2pdf import convert
+warnings.simplefilter('default', DeprecationWarning)
 
-try:
-    with open("resume.json", "r", encoding="utf8") as myfile:
-        data = myfile.read()
-except FileNotFoundError:
-    with open("demo.json", "r", encoding="utf8") as myfile:
-        data = myfile.read()
+def load_config():
+    """Load configuration from config.yaml"""
+    try:
+        with open('config.yaml', 'r') as file:
+            return yaml.safe_load(file)
+    except FileNotFoundError:
+        raise FileNotFoundError("config.yaml not found")
+    except yaml.YAMLError as e:
+        raise ValueError(f"Invalid YAML in config.yaml: {str(e)}")
 
-resume_json = json.loads(data)
+def load_resume_data():
+    """Load and validate resume data from JSON file"""
+    try:
+        with open('resume.json', 'r') as file:
+            resume_data = json.load(file)
+    except FileNotFoundError:
+        raise FileNotFoundError("resume.json not found")
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON in resume.json: {str(e)}")
 
-document = Document()
-sections = document.sections
-for section in sections:
-    section.top_margin = Inches(0.5)
-    section.bottom_margin = Inches(0.5)
-    section.left_margin = Inches(0.5)
-    section.right_margin = Inches(0.5)
+    try:
+        # Validate and parse resume sections
+        application_info = ApplicationInfo.model_validate(resume_data["ApplicationInfo"])
+        general = General.model_validate(resume_data["General"])
+        jobs = [Jobs.model_validate(job_data) for job_data in resume_data["Jobs"].values()]
+        schools = [Education.model_validate(edu_data) for edu_data in resume_data["Education"].values()]
+        certifications = [LicensesAndCertifications.model_validate(cert_data)
+                         for cert_data in resume_data["LicensesAndCertifications"].values()]
+        volunteer_experiences = [VolunteerExperience.model_validate(exp_data)
+                               for exp_data in resume_data["VolunteerExperience"].values()]
+        projects = [Projects.model_validate(proj_data) for proj_data in resume_data["Projects"].values()]
+        awards = [HonorsAndAwards.model_validate(award_data) for award_data in resume_data["HonorsAndAwards"].values()]
+        languages = [Languages.model_validate(lang_data) for lang_data in resume_data["Languages"].values()]
 
-document.styles["Normal"].paragraph_format.line_spacing = 1
-document.styles["Normal"].paragraph_format.keep_together = True
-document.styles["Normal"].paragraph_format.space_before = Pt(1)
-document.styles["Normal"].paragraph_format.space_after = Pt(1)
+        return (application_info, general, jobs, schools, certifications,
+                volunteer_experiences, projects, awards, languages)
+    except KeyError as e:
+        raise ValueError(f"Missing required section in resume.json: {str(e)}")
+    except Exception as e:
+        raise ValueError(f"Error validating resume data: {str(e)}")
 
+def setup_pdf(config):
+    """Initialize PDF with configuration"""
+    try:
+        template_config = config['templates'][config['template']]
+        pdf = FPDF(format=template_config['pdf_format'])
+        pdf.add_page()
 
-# document.styles["Heading 1"].paragraph_format.space_before = Pt(4)
-document.styles["Heading 1"].paragraph_format.space_after = Pt(1)
-document.styles["Heading 2"].paragraph_format.space_before = Pt(6)
-document.styles["Heading 2"].paragraph_format.space_after = Pt(1)
-document.styles["Heading 3"].paragraph_format.space_before = Pt(4)
-document.styles["Heading 3"].paragraph_format.space_after = Pt(1)
-document.styles["Heading 4"].paragraph_format.space_before = Pt(1)
-document.styles["Heading 4"].paragraph_format.space_after = Pt(1)
+        # Add fonts
+        for font_name, font_file in template_config['fonts'].items():
+            font_path = f"fonts/{font_file}.ttf"
+            if not os.path.exists(font_path):
+                raise FileNotFoundError(f"Font file not found: {font_path}")
+            pdf.add_font(font_file, '', font_path)
 
-document.add_paragraph().add_run(resume_json["name"]).font.size = Pt(24)
-document.add_paragraph().add_run(resume_json["title"]).font.size = Pt(16)
-document.add_paragraph(resume_json["location"])
-document.add_paragraph(resume_json["email"])
-document.add_paragraph(resume_json["cell number"])
-document.add_paragraph(resume_json["personal website"])
-document.add_paragraph(resume_json["linkedin"])
-document.add_paragraph(resume_json["github"])
-document.add_paragraph("")
-document.add_paragraph(resume_json["description"])
+        pdf.set_fallback_fonts(['TwitterEmojis'])
+        pdf.set_font(template_config['fonts']['primary'], size=template_config['font_size']['normal'])
 
+        return pdf, template_config
+    except KeyError as e:
+        raise ValueError(f"Missing required configuration: {str(e)}")
+    except Exception as e:
+        raise RuntimeError(f"Error setting up PDF: {str(e)}")
 
-for component in resume_json:
-    if component == "experience":
-        check_true = []
-        for subcomponent in resume_json[component]:
-            check_true.append(resume_json[component][subcomponent]["include"])
-        if True in check_true:
-            document.add_heading("Experience", level=1)
-            for subcomponent in resume_json[component]:
-                if resume_json[component][subcomponent]["include"] is True:
-                    document.add_heading(resume_json[component][subcomponent]["title"], level=2)
-                    document.add_paragraph(
-                        resume_json[component][subcomponent]["duration"][0]
-                        + " - "
-                        + resume_json[component][subcomponent]["duration"][1]
-                    )
-                    for item in resume_json[component][subcomponent]:
-                        if (
-                            item != "include"
-                            and resume_json[component][subcomponent][item] is not None
-                            and not isinstance(resume_json[component][subcomponent][item], list)
-                            and item != "title"
-                            and item != "duration"
-                        ):
-                            paragraph = document.add_paragraph("")
-                            paragraph.add_run(item.title() + ": ").bold = True
-                            paragraph.add_run(resume_json[component][subcomponent][item])
-                        elif isinstance(resume_json[component][subcomponent][item], list):
-                            if item == "techstack":
-                                document.add_heading("Tech Stack", level=3)
-                                for tech_count, technology in enumerate(
-                                    resume_json[component][subcomponent][item]
-                                ):
-                                    paragraph = document.add_paragraph(
-                                        resume_json[component][subcomponent][item][tech_count],
-                                        style="List Bullet",
-                                    )
-                                    paragraph.paragraph_format.left_indent = Inches(0.6)
-    elif component == "education":
-        check_true = []
-        for subcomponent in resume_json[component]:
-            check_true.append(resume_json[component][subcomponent]["include"])
-        if True in check_true:
-            document.add_heading("Education", level=1)
-            for subcomponent in resume_json[component]:
-                if resume_json[component][subcomponent]["include"] is True:
-                    document.add_heading(resume_json[component][subcomponent]["school"], level=2)
-                    document.add_paragraph(
-                        resume_json[component][subcomponent]["duration"][0]
-                        + " - "
-                        + resume_json[component][subcomponent]["duration"][1]
-                    )
-                    for item in resume_json[component][subcomponent]:
-                        if (
-                            item != "include"
-                            and resume_json[component][subcomponent][item] is not None
-                            and not isinstance(resume_json[component][subcomponent][item], list)
-                            and item != "school"
-                            and item != "duration"
-                        ):
-                            paragraph = document.add_paragraph("")
-                            paragraph.add_run(item.title() + ": ").bold = True
-                            paragraph.add_run(resume_json[component][subcomponent][item])
-                        elif isinstance(resume_json[component][subcomponent][item], list):
-                            if item == "activities and societies":
-                                document.add_heading("Activities and Societies", level=3)
-                                for activity_count, activity in enumerate(
-                                    resume_json[component][subcomponent][item]
-                                ):
-                                    paragraph = document.add_paragraph(
-                                        resume_json[component][subcomponent][item][activity_count],
-                                        style="List Bullet",
-                                    )
-                                    paragraph.paragraph_format.left_indent = Inches(0.6)
-    elif component == "licenses and certifications":
-        check_true = []
-        for subcomponent in resume_json[component]:
-            check_true.append(resume_json[component][subcomponent]["include"])
-        if True in check_true:
-            document.add_heading("Licenses and Certifictions", level=1)
-            for subcomponent in resume_json[component]:
-                if resume_json[component][subcomponent]["include"] is True:
-                    document.add_heading(resume_json[component][subcomponent]["name"], level=2)
-                    document.add_paragraph(resume_json[component][subcomponent]["issued on"])
-                    for item in resume_json[component][subcomponent]:
-                        if (
-                            item != "include"
-                            and resume_json[component][subcomponent][item] is not None
-                            and not isinstance(resume_json[component][subcomponent][item], list)
-                            and item != "name"
-                            and item != "issued on"
-                        ):
-                            paragraph = document.add_paragraph("")
-                            paragraph.add_run(item.title() + ": ").bold = True
-                            paragraph.add_run(resume_json[component][subcomponent][item])
-    elif component == "volunteer experience":
-        check_true = []
-        for subcomponent in resume_json[component]:
-            check_true.append(resume_json[component][subcomponent]["include"])
-        if True in check_true:
-            document.add_heading("Volunteer Experience", level=1)
-            for subcomponent in resume_json[component]:
-                if resume_json[component][subcomponent]["include"] is True:
-                    document.add_heading(
-                        resume_json[component][subcomponent]["organization"], level=2
-                    )
-                    document.add_paragraph(
-                        resume_json[component][subcomponent]["duration"][0]
-                        + " - "
-                        + resume_json[component][subcomponent]["duration"][1]
-                    )
-                    for item in resume_json[component][subcomponent]:
-                        if (
-                            item != "include"
-                            and resume_json[component][subcomponent][item] is not None
-                            and not isinstance(resume_json[component][subcomponent][item], list)
-                            and item != "organization"
-                            and item != "duration"
-                        ):
-                            paragraph = document.add_paragraph("")
-                            paragraph.add_run(item.title() + ": ").bold = True
-                            paragraph.add_run(resume_json[component][subcomponent][item])
+def ensure_output_directory(config, application_info):
+    """Create output directory structure if it doesn't exist"""
+    try:
+        output_dir = os.path.join(
+            config['output_directory'],
+            application_info.company,
+            application_info.job
+        )
+        os.makedirs(output_dir, exist_ok=True)
+        return output_dir
+    except Exception as e:
+        raise RuntimeError(f"Error creating output directory: {str(e)}")
 
-    elif component == "accomplishments":
-        check_true = []
-        for subcomponent in resume_json[component]:
-            for subcomponent_item in resume_json[component][subcomponent]:
-                check_true.append(
-                    resume_json[component][subcomponent][subcomponent_item]["include"]
-                )
-        if True in check_true:
-            document.add_heading("Accomplishments", level=1)
-            for subcomponent in resume_json[component]:
-                if subcomponent == "projects":
-                    check_true = []
-                    for project_subcomponent in resume_json[component][subcomponent]:
-                        check_true.append(
-                            resume_json[component][subcomponent][project_subcomponent]["include"]
-                        )
-                    if True in check_true:
-                        document.add_heading("Projects", level=2)
-                        for project_subcomponent in resume_json[component][subcomponent]:
-                            if (
-                                resume_json[component][subcomponent][project_subcomponent][
-                                    "include"
-                                ]
-                                is True
-                            ):
-                                document.add_heading(
-                                    resume_json[component][subcomponent][project_subcomponent][
-                                        "name"
-                                    ],
-                                    level=3,
-                                )
-                                document.add_paragraph(
-                                    resume_json[component][subcomponent][project_subcomponent][
-                                        "duration"
-                                    ][0]
-                                    + " - "
-                                    + resume_json[component][subcomponent][project_subcomponent][
-                                        "duration"
-                                    ][1]
-                                )
-                                for item in resume_json[component][subcomponent][
-                                    project_subcomponent
-                                ]:
-                                    if (
-                                        item != "include"
-                                        and resume_json[component][subcomponent][
-                                            project_subcomponent
-                                        ][item]
-                                        is not None
-                                        and not isinstance(
-                                            resume_json[component][subcomponent][
-                                                project_subcomponent
-                                            ][item],
-                                            list,
-                                        )
-                                        and item != "name"
-                                        and item != "duration"
-                                    ):
-                                        paragraph = document.add_paragraph("")
-                                        paragraph.add_run(item.title() + ": ").bold = True
-                                        paragraph.add_run(
-                                            resume_json[component][subcomponent][
-                                                project_subcomponent
-                                            ][item]
-                                        )
-                                    elif isinstance(
-                                        resume_json[component][subcomponent][project_subcomponent][
-                                            item
-                                        ],
-                                        list,
-                                    ):
-                                        if item == "techstack":
-                                            document.add_heading("Tech Stack", level=4)
-                                            for tech_count, technology in enumerate(
-                                                resume_json[component][subcomponent][
-                                                    project_subcomponent
-                                                ][item]
-                                            ):
-                                                paragraph = document.add_paragraph(
-                                                    resume_json[component][subcomponent][
-                                                        project_subcomponent
-                                                    ][item][tech_count],
-                                                    style="List Bullet",
-                                                )
-                                                paragraph.paragraph_format.left_indent = Inches(0.6)
-                if subcomponent == "honor and award":
-                    check_true = []
-                    for project_subcomponent in resume_json[component][subcomponent]:
-                        check_true.append(
-                            resume_json[component][subcomponent][project_subcomponent]["include"]
-                        )
-                    if True in check_true:
-                        document.add_heading("Honor and Award", level=2)
-                        for honor_subcomponent in resume_json[component][subcomponent]:
-                            if (
-                                resume_json[component][subcomponent][honor_subcomponent]["include"]
-                                is True
-                            ):
-                                document.add_heading(
-                                    resume_json[component][subcomponent][honor_subcomponent][
-                                        "title"
-                                    ],
-                                    level=3,
-                                )
-                                document.add_paragraph(
-                                    resume_json[component][subcomponent][honor_subcomponent][
-                                        "issued on"
-                                    ]
-                                )
-                                for item in resume_json[component][subcomponent][
-                                    honor_subcomponent
-                                ]:
-                                    if (
-                                        item != "include"
-                                        and resume_json[component][subcomponent][
-                                            honor_subcomponent
-                                        ][item]
-                                        is not None
-                                        and not isinstance(
-                                            resume_json[component][subcomponent][
-                                                honor_subcomponent
-                                            ][item],
-                                            list,
-                                        )
-                                        and item != "title"
-                                        and item != "issued on"
-                                    ):
-                                        paragraph = document.add_paragraph("")
-                                        paragraph.add_run(item.title() + ": ").bold = True
-                                        paragraph.add_run(
-                                            resume_json[component][subcomponent][
-                                                honor_subcomponent
-                                            ][item]
-                                        )
-                if subcomponent == "language":
-                    check_true = []
-                    for project_subcomponent in resume_json[component][subcomponent]:
-                        check_true.append(
-                            resume_json[component][subcomponent][project_subcomponent]["include"]
-                        )
-                    if True in check_true:
-                        document.add_heading("Language", level=2)
-                        for language_subcomponent in resume_json[component][subcomponent]:
-                            if (
-                                resume_json[component][subcomponent][language_subcomponent][
-                                    "include"
-                                ]
-                                is True
-                            ):
-                                document.add_heading(
-                                    resume_json[component][subcomponent][language_subcomponent][
-                                        "language"
-                                    ],
-                                    level=3,
-                                )
-                                for item in resume_json[component][subcomponent][
-                                    language_subcomponent
-                                ]:
-                                    if (
-                                        item != "include"
-                                        and resume_json[component][subcomponent][
-                                            language_subcomponent
-                                        ][item]
-                                        is not None
-                                        and not isinstance(
-                                            resume_json[component][subcomponent][
-                                                language_subcomponent
-                                            ][item],
-                                            list,
-                                        )
-                                        and item != "language"
-                                    ):
-                                        paragraph = document.add_paragraph("")
-                                        paragraph.add_run(item.title() + ": ").bold = True
-                                        paragraph.add_run(
-                                            resume_json[component][subcomponent][
-                                                language_subcomponent
-                                            ][item]
-                                        )
+def add_general_information(pdf, config, general):
+    cell_width = config['cell_width']
+    cell_height = config['cell_height']
+    pdf.set_font(size=14, style="U")
+    pdf.cell(cell_width, 10, text=f"{general.name}",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.set_font(size=16)
+    pdf.cell(cell_width, 8, text=f"{general.title}",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.set_font(size=8)
+    pdf.cell(cell_width, cell_height, text=f"{general.location}",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(cell_width, cell_height, text=f"{general.email}",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(cell_width, cell_height, text=f"{general.cell_number}",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(cell_width, cell_height, text=f"{general.portfolio}",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(cell_width, cell_height, text=f"{general.linkedin}",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(cell_width, cell_height, text=f"{general.github}",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+    # Handle the description with text wrapping
+    pdf.set_font(size=14)
+    pdf.cell(cell_width, 8, text="Description",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.set_font(size=8)
+    pdf.multi_cell(cell_width, cell_height,
+                   text=f"{general.description}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+    return pdf
 
 
-Path(
-    "generated_applications/{}/{}".format(
-        resume_json["meta"]["company"], resume_json["meta"]["job"]
-    )
-).mkdir(parents=True, exist_ok=True)
-# p.add_run('bold').bold = True
-# p.add_run(' and some ')
-# p.add_run('italic.').italic = True
-document.save(
-    "generated_applications/{}/{}/{} Resume - {}.docx".format(
-        resume_json["meta"]["company"],
-        resume_json["meta"]["job"],
-        resume_json["name"],
-        resume_json["meta"]["job"],
-    )
-)
-convert(
-    "generated_applications/{}/{}/{} Resume - {}.docx".format(
-        resume_json["meta"]["company"],
-        resume_json["meta"]["job"],
-        resume_json["name"],
-        resume_json["meta"]["job"],
-    )
-)
-# convert("demo.docx", "output.pdf")
+def add_jobs(pdf, config, jobs):
+    cell_width = config['cell_width']
+    cell_height = config['cell_height']
+    pdf.set_font(size=14, style="U")
+    pdf.cell(cell_width, 8, text="Jobs",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    for job in jobs:
+        if job.include is True:
+            pdf.set_font(size=12)
+            pdf.cell(cell_width, 5, text=f"{job.title}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font(size=10)
+            pdf.cell(cell_width, cell_height, text=f"{job.company}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font(size=8)
+            pdf.cell(cell_width, cell_height, text=f"Employment Type: {job.employment_type}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.cell(cell_width, cell_height, text=f"Duration: {job.duration[0]} - {job.duration[1]}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.multi_cell(cell_width, cell_height, text=f"Description: {job.description}",
+                           new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            if job.skills:
+                pdf.cell(cell_width, cell_height, text=f"Skills: {', '.join([x for x in job.skills])}",
+                         new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.cell(cell_width, 5, text="",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    return pdf
+
+
+def add_education(pdf, config, schools):
+    cell_width = config['cell_width']
+    cell_height = config['cell_height']
+    pdf.set_font(size=14, style="U")
+    pdf.cell(cell_width, 8, text="Education",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    for school in schools:
+        if school.include is True:
+            pdf.set_font(size=12)
+            pdf.cell(cell_width, 5, text=f"{school.school}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font(size=10)
+            pdf.cell(cell_width, cell_height, text=f"{school.field}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font(size=8)
+            pdf.cell(cell_width, cell_height, text=f"Duration: {school.duration[0]} - {school.duration[1]}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            if school.activities_and_societies:
+                pdf.cell(cell_width, cell_height, text=f"Clubs: {', '.join([x for x in school.activities_and_societies])}",
+                         new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.cell(cell_width, 5, text="",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+    return pdf
+
+
+def add_certification(pdf, config, certifications):
+    cell_width = config['cell_width']
+    cell_height = config['cell_height']
+    pdf.set_font(size=14, style="U")
+    pdf.cell(cell_width, 8, text="Certifications",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    for cert in certifications:
+        if cert.include is True:
+            pdf.set_font(size=12)
+            pdf.cell(cell_width, 5, text=f"{cert.name}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font(size=10)
+            pdf.cell(cell_width, cell_height, text=f"Issued By: {cert.issuer}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font(size=8)
+            pdf.cell(cell_width, cell_height, text=f"Issued On: {cert.issued_on}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.cell(cell_width, cell_height, text=f"Credential ID: {cert.credential_id}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.cell(cell_width, 5, text="",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    return pdf
+
+
+def add_volunteering(pdf, config, volunteer_experiences):
+    cell_width = config['cell_width']
+    cell_height = config['cell_height']
+    pdf.set_font(size=14, style="U")
+    pdf.cell(cell_width, 8, text="Volunteering",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    for experience in volunteer_experiences:
+        if experience.include is True:
+            pdf.set_font(size=12)
+            pdf.cell(cell_width, 5, text=f"{experience.organization}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font(size=10)
+            pdf.cell(cell_width, cell_height, text=f"{experience.role}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font(size=8)
+            pdf.cell(cell_width, cell_height, text=f"{experience.cause}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.cell(cell_width, cell_height, text=f"Duration: {experience.duration[0]} - {experience.duration[1]}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.multi_cell(cell_width, cell_height, text=f"Description: {experience.description}",
+                           new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.cell(cell_width, 5, text="",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    return pdf
+
+
+def add_projects(pdf, config, projects):
+    cell_width = config['cell_width']
+    cell_height = config['cell_height']
+    pdf.set_font(size=14, style="U")
+    pdf.cell(cell_width, 8, text="Projects",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    for project in projects:
+        if project.include is True:
+            pdf.set_font(size=12)
+            pdf.cell(cell_width, 5, text=f"{project.name}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font(size=10)
+            pdf.write_html(f'<a href="{project.link}">{project.link}</a>')
+            pdf.set_font(size=8)
+            pdf.cell(cell_width, cell_height, text=f"Duration: {project.duration[0]} - {project.duration[1]}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.multi_cell(cell_width, cell_height, text=f"Description: {project.description}",
+                           new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            if project.skills:
+                pdf.cell(cell_width, cell_height, text=f"Skills: {', '.join([x for x in project.skills])}",
+                         new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.cell(cell_width, 5, text="",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    return pdf
+
+
+def add_awards(pdf, config, awards):
+    cell_width = config['cell_width']
+    cell_height = config['cell_height']
+    pdf.set_font(size=14, style="U")
+    pdf.cell(cell_width, 8, text="Awards",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    for award in awards:
+        if award.include is True:
+            pdf.set_font(size=12)
+            pdf.cell(cell_width, 5, text=f"{award.title}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font(size=10)
+            pdf.cell(cell_width, cell_height, text=f"{award.issuer}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font(size=8)
+            pdf.cell(cell_width, cell_height, text=f"{award.issued_on}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.multi_cell(cell_width, cell_height, text=f"Description: {award.description}",
+                           new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.cell(cell_width, 5, text="",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    return pdf
+
+
+def add_languages(pdf, config, languages):
+    cell_width = config['cell_width']
+    cell_height = config['cell_height']
+    pdf.set_font(size=14, style="U")
+    pdf.cell(cell_width, 8, text="Languages",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    for language in languages:
+        if language.include is True:
+            pdf.set_font(size=12)
+            pdf.cell(cell_width, 5, text=f"{language.language}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.set_font(size=10)
+            pdf.cell(cell_width, cell_height, text=f"{language.proficiency}",
+                     new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    return pdf
+
+
+def main():
+    try:
+        # Load configuration and resume data
+        config = load_config()
+        resume_data = load_resume_data()
+        application_info, general, jobs, schools, certifications, \
+        volunteer_experiences, projects, awards, languages = resume_data
+
+        # Setup PDF with configuration
+        pdf, template_config = setup_pdf(config)
+
+        # Create output directory
+        output_dir = ensure_output_directory(config, application_info)
+
+        # Generate resume sections
+        pdf = add_general_information(pdf, template_config, general)
+        pdf = add_jobs(pdf, template_config, jobs)
+        pdf = add_education(pdf, template_config, schools)
+        pdf = add_certification(pdf, template_config, certifications)
+        pdf = add_volunteering(pdf, template_config, volunteer_experiences)
+        pdf = add_projects(pdf, template_config, projects)
+        pdf = add_awards(pdf, template_config, awards)
+        pdf = add_languages(pdf, template_config, languages)
+
+        # Generate output filename
+        output_file = config['file_name_template'].format(
+            name=general.name,
+            company=application_info.company,
+            job=application_info.job,
+            date=datetime.now().strftime('%Y-%m-%d')
+        )
+        output_path = os.path.join(output_dir, output_file)
+
+        # Save the PDF
+        pdf.output(output_path)
+        print(f"Resume generated successfully: {output_path}")
+
+    except Exception as e:
+        print(f"Error generating resume: {str(e)}")
+        raise
+
+if __name__ == "__main__":
+    main()
