@@ -141,5 +141,13 @@ cython_debug/
 generated_applications/
 Cover Letters/
 .vscode
-resume.json
+demo.json
 sandbox.py
+
+scripts/
+
+# Local backups
+.resume_backups/
+
+# Personal data
+resume.json
