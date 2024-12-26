@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1 # Use the ref you want to point at
+    rev: v4.6.0
     hooks:
       - id: check-added-large-files
         args: ["--maxkb=100000"]
@@ -11,6 +11,7 @@ repos:
       - id: check-json
       - id: pretty-format-json
         args: ["--autofix", "--no-sort-keys"]
+        exclude: ^.*\.ipynb$
       - id: check-merge-conflict
       - id: check-symlinks
       - id: check-xml
@@ -19,24 +20,60 @@ repos:
       - id: debug-statements
       - id: detect-private-key
       - id: end-of-file-fixer
+      - id: no-commit-to-branch
+        args: [--branch, main]
       - id: requirements-txt-fixer
       - id: trailing-whitespace
       - id: mixed-line-ending
-    # -   id: ...
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: isort (python)
+        args: ["--profile", "black", "--force-single-line-imports"]
+
   - repo: https://github.com/ambv/black
-    rev: 21.7b0
+    rev: 24.4.2
     hooks:
       - id: black
         args: ["--line-length=100"]
-        language_version: python3.9
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.2
+        language_version: python3.13
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+        - 'types-requests'
+        - 'types-PyYAML'
+
+  - repo: https://github.com/PyCQA/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        args:
+          - --ignore=D104,D107,D203,D204,D213,D215,D400,D401,D404,D406,D407,D408,D409,D413
+
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.17
+    hooks:
+    - id: mdformat
+      additional_dependencies:
+      - mdformat-gfm
+      - mdformat-black
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
     hooks:
       - id: flake8
         args: ["--max-line-length=100", "--ignore=E501,W503,E203,E402"]
-        language_version: python3.9
-  - repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.6.0
+
+  - repo: local
     hooks:
-      - id: reorder-python-imports
-        language_version: python3.9
+      - id: pytest
+        name: pytest
+        entry: uv run pytest
+        language: system
+        pass_filenames: false
+        always_run: true

@@ -12,8 +12,8 @@ Author/Designer:
 
 NOTICE: This Truetype font contains embedded bitmap fonts made
 	by firefly and is released as a whole
-	under the ARPHIC PUBLIC LICENSE. 
-	There are also seperate bitmap fonts made by Firefly and 
+	under the ARPHIC PUBLIC LICENSE.
+	There are also seperate bitmap fonts made by Firefly and
 	released under the GENERAL PUBLIC LICENSE (GPL):
 	http://www.study-area.org/apt/firefly-font/bitmaps/
 
@@ -125,7 +125,7 @@ receives a license from the original licensor to copy, distribute or
 modify the Font subject to these terms and conditions. You may not
 impose any further restrictions on the recipients' exercise of the
 rights granted herein. You are not responsible for enforcing compliance
-by third parties to this License. 
+by third parties to this License.
 
 6. Contradiction
    If, as a consequence of a court judgment or allegation of patent
@@ -144,7 +144,7 @@ distribution of the Font.
    If any portion of this section is held invalid or unenforceable under
 any particular circumstance, the balance of the section is intended to
 apply and the section as a whole is intended to apply in other
-circumstances. 
+circumstances.
 
 7. NO WARRANTY
    BECAUSE THE FONT IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR
@@ -168,5 +168,3 @@ USE, DATA OR PROFITS; OR BUSINESS INTERRUPTION), EVEN IF SUCH HOLDERS OR
 OTHER PARTIES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 ======================================================================
-
-

@@ -12,6 +12,23 @@ A powerful tool that generates professionally formatted PDF resumes from a JSON 
 - **Organized Output**: Resumes are automatically organized by company and job
 - **CLI Interface**: Flexible command-line options for easy integration
 
+## Project Structure
+
+```
+resume_generator/
+  ├── __init__.py
+  ├── main.py          # Core resume generation logic
+  └── schemas.py       # Pydantic models for data validation
+
+tests/
+  ├── test_demo_json.py
+  └── test_resume_generator.py
+
+fonts/                 # TTF font files
+media/                 # Example images
+generated_applications/
+```
+
 ## Installation & Setup
 
 This project uses [uv](https://github.com/astral-sh/uv) for dependency management and Python version control.
@@ -26,22 +43,26 @@ This project uses [uv](https://github.com/astral-sh/uv) for dependency managemen
 ### Project Setup
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
    cd Dynamic-Resume-Generator
    ```
 
-2. Initialize uv project:
+1. Initialize uv project:
+
    ```bash
    uv init
    ```
 
-3. Install dependencies:
+1. Install dependencies:
+
    ```bash
    uv pip install -r requirements.txt
    ```
 
-4. Set up Python 3.13:
+1. Set up Python 3.13:
+
    ```bash
    # Check available Python versions
    uv python list
@@ -53,7 +74,8 @@ This project uses [uv](https://github.com/astral-sh/uv) for dependency managemen
    uv python pin 3.13
    ```
 
-5. Create your resume:
+1. Create your resume:
+
    - Copy `demo.json` to `resume.json`
    - Fill in your information following the demo format
    - Use `"include": true/false` to control what appears in the generated PDF
@@ -62,12 +84,30 @@ This project uses [uv](https://github.com/astral-sh/uv) for dependency managemen
 
 If you're contributing to development:
 
+1. Install pre-commit hooks:
+
+   ```bash
+   pip install pre-commit
+   pre-commit install
+   ```
+
+   This will set up the following checks:
+
+   - Code formatting (black, isort)
+   - Type checking (mypy)
+   - Docstring validation (pydocstyle)
+   - Linting (flake8)
+   - Testing (pytest)
+   - And more...
+
 1. Compile requirements from pyproject.toml:
+
    ```bash
    uv pip compile --python 3.13 pyproject.toml -o requirements.txt
    ```
 
-2. Install development dependencies:
+1. Install development dependencies:
+
    ```bash
    uv pip install -r requirements.txt
    ```
@@ -75,16 +115,19 @@ If you're contributing to development:
 ## Usage
 
 Basic usage:
+
 ```bash
-uv run main.py
+uv run -m resume_generator.main
 ```
 
 Advanced options:
+
 ```bash
-uv run main.py --input resume.json --template modern --output-dir ./my-resumes
+uv run -m resume_generator.main --input resume.json --template modern --output-dir ./my-resumes
 ```
 
 Available arguments:
+
 - `--input`, `-i`: Path to input JSON file (default: resume.json)
 - `--config`, `-c`: Path to config file (default: config.yaml)
 - `--template`, `-t`: Template to use (e.g., modern, minimal)
@@ -95,10 +138,12 @@ Available arguments:
 The `resume.json` file contains sections for:
 
 ### Application Info
+
 - Company name
 - Job title
 
 ### General Information
+
 - Name
 - Professional title
 - Location
@@ -107,6 +152,7 @@ The `resume.json` file contains sections for:
 - Professional summary
 
 ### Experience Sections
+
 - **Jobs**: Work experience with company, title, dates, and descriptions
 - **Education**: Academic background with institutions and degrees
 - **Certifications**: Professional certifications and licenses
@@ -131,11 +177,13 @@ The generator enforces several validation rules to ensure professional quality:
 ## Templates
 
 ### Modern Template
+
 - Professional design with colored section headers
 - Emphasis on work experience and skills
 - Ideal for technical and corporate positions
 
 ### Minimal Template
+
 - Clean, straightforward layout
 - Monochromatic color scheme
 - Perfect for academic or traditional industries
@@ -155,6 +203,7 @@ The `config.yaml` file allows customization of:
 ## Example Output Structure
 
 Generated resumes are organized as:
+
 ```
 generated_applications/
   company_name/
@@ -168,21 +217,46 @@ generated_applications/
 
 ## Testing
 
-The project uses pytest for testing. To run the tests:
+The project uses pytest for testing and pre-commit hooks for quality assurance.
+
+### Running Tests
 
 ```bash
-# Install test dependencies
-uv pip install -r requirements.txt
-
-# Run tests
+# Run tests with pytest
 pytest
+
+# Run all quality checks including tests
+pre-commit run --all-files
 ```
 
 Test coverage includes:
+
 - Configuration loading and validation
 - Resume data parsing and validation
 - PDF generation and output handling
 - Directory structure management
+
+### Pre-commit Checks
+
+The following checks are run automatically before each commit:
+
+- **Code Quality**:
+  - Black for code formatting
+  - isort for import sorting
+  - flake8 for linting
+  - mypy for type checking
+  - pydocstyle for docstring validation
+- **Testing**:
+  - pytest for running unit tests
+- **Security**:
+  - detect-private-key
+  - check-merge-conflict
+- **Formatting**:
+  - end-of-file-fixer
+  - trailing-whitespace
+  - mixed-line-ending
+- **Documentation**:
+  - mdformat for markdown files
 
 ## Security
 
@@ -203,12 +277,13 @@ This project follows security best practices:
 Contributions are welcome! Please follow these guidelines:
 
 1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
+1. Create a feature branch
+1. Add tests for new functionality
+1. Ensure all tests pass
+1. Submit a pull request
 
 Areas for contribution:
+
 - Templates
 - Validation rules
 - Documentation
