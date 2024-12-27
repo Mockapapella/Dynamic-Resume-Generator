@@ -27,20 +27,25 @@ class GeneralSection(BaseSection):
         self.add_cell(self.data.title, "title", height=8)
 
         # Add contact information
-        contact_fields = [
-            self.data.location,
-            self.data.email,
-            self.data.cell_number,
-            self.data.portfolio,
-            self.data.linkedin,
-            self.data.github,
-        ]
+        if self.data.location:
+            self.add_cell(self.data.location, "contact")
+        if self.data.email:
+            self.add_cell(self.data.email, "contact")
+        if self.data.cell_number:
+            self.add_cell(str(self.data.cell_number), "contact")
 
-        # Filter out None values and convert to strings
-        contact_info = [str(field) for field in contact_fields if field is not None]
-
-        for info in contact_info:
-            self.add_cell(info, "contact")
+        # Add URLs as clickable links with proper spacing
+        if self.data.portfolio:
+            self.set_style("link")
+            self.pdf.write_html(f'<a href="{self.data.portfolio}">{self.data.portfolio}</a>')
+            self.add_cell("", "contact", height=1)  # Add spacing after link
+        if self.data.linkedin:
+            self.set_style("link")
+            self.pdf.write_html(f'<a href="{self.data.linkedin}">{self.data.linkedin}</a>')
+            self.add_cell("", "contact", height=1)  # Add spacing after link
+        if self.data.github:
+            self.set_style("link")
+            self.pdf.write_html(f'<a href="{self.data.github}">{self.data.github}</a>')
 
         # Add description header and content
         self.add_cell("Description", "description_header", height=8)

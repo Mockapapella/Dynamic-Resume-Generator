@@ -35,28 +35,23 @@ class EducationSection(BaseSection):
                 self.add_cell(school.field, "field")
 
                 # Add duration
-                self.add_cell(
-                    f"Duration: {school.duration[0]} - {school.duration[1]}", "details"
-                )
+                self.add_multi_cell(f"{school.duration[0]} - {school.duration[1]}", "details")
 
                 # Add degree if available
                 if school.degree:
-                    self.add_cell(f"Degree: {school.degree}", "details")
+                    self.add_multi_cell(school.degree, "details")
 
                 # Add GPA if available
                 if school.gpa:
-                    self.add_cell(f"GPA: {school.gpa}", "details")
+                    self.add_multi_cell(school.gpa, "details")
 
                 # Add activities and societies if available
                 if school.activities_and_societies:
-                    self.add_cell(
-                        f"Clubs: {', '.join(school.activities_and_societies)}",
-                        "details",
-                    )
+                    self.add_multi_cell(', '.join(school.activities_and_societies), "details")
 
                 # Add description if available
                 if school.description:
-                    self.add_multi_cell(f"Description: {school.description}", "details")
+                    self.add_multi_cell(school.description, "details")
 
                 # Add spacing between schools
                 self.add_cell("", "details", height=5)

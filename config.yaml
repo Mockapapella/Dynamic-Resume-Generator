@@ -1,6 +1,6 @@
 # Resume PDF Settings
 output_directory: "generated_applications"
-file_name_template: "Resume - {name} - {company} - {job} - {date}.pdf"
+file_name_template: "Resume - {name} - {date}.pdf"
 
 # Default Template
 template: "minimal"
@@ -42,7 +42,7 @@ templates:
   minimal:
     pdf_format: "letter"
     cell_width: 190
-    cell_height: 4
+    cell_height: 3.5
 
     fonts:
       primary: "DejaVuSans"
@@ -50,10 +50,10 @@ templates:
       emoji: "TwitterEmojis"
 
     font_size:
-      name: 20
-      title: 14
-      section_header: 12
-      job_title: 10
+      name: 18
+      title: 12
+      section_header: 11
+      job_title: 9
       normal: 8
 
     colors:
@@ -63,8 +63,8 @@ templates:
       text: [0, 0, 0]
 
     spacing:
-      after_section: 1
-      after_item: 3
+      after_section: 0.75
+      after_item: 2
 
 # Error Messages
 error_messages:

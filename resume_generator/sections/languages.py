@@ -32,7 +32,7 @@ class LanguagesSection(BaseSection):
                 self.add_cell(language.language, "language", height=5)
 
                 # Add proficiency level
-                self.add_cell(language.proficiency, "proficiency")
+                self.add_multi_cell(language.proficiency, "proficiency")
 
                 # Add spacing between languages
                 self.add_cell("", "proficiency", height=2)

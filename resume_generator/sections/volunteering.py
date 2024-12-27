@@ -37,17 +37,15 @@ class VolunteeringSection(BaseSection):
                 self.add_cell(experience.role, "role")
 
                 # Add cause and duration
-                self.add_cell(experience.cause, "details")
-                self.add_cell(
-                    f"Duration: {experience.duration[0]} - {experience.duration[1]}",
-                    "details",
+                self.add_multi_cell(experience.cause, "details")
+                self.add_multi_cell(
+                    f"{experience.duration[0]} - {experience.duration[1]}",
+                    "details"
                 )
 
                 # Add description if available
                 if experience.description:
-                    self.add_multi_cell(
-                        f"Description: {experience.description}", "details"
-                    )
+                    self.add_multi_cell(experience.description, "details")
 
                 # Add spacing between experiences
                 self.add_cell("", "details", height=5)

@@ -70,6 +70,23 @@ class BaseSection:
             new_y=YPos.NEXT,
         )
 
+    def format_labeled_text(self, label: str, value: str, style_key: str) -> None:
+        """Add a cell with a label followed by text.
+
+        Args:
+            label (str): The label text (e.g., "Duration:").
+            value (str): The value text.
+            style_key (str): Key to look up in the styles dictionary.
+        """
+        self.set_style(style_key)
+        self.pdf.multi_cell(
+            self.cell_width,
+            self.cell_height,
+            text=f"{label} {value}",
+            new_x=XPos.LMARGIN,
+            new_y=YPos.NEXT,
+        )
+
     def add_section(self) -> None:
         """Add the section to the PDF.
 

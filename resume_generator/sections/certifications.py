@@ -34,11 +34,11 @@ class CertificationsSection(BaseSection):
                 self.add_cell(cert.name, "name", height=5)
 
                 # Add issuer
-                self.add_cell(f"Issued By: {cert.issuer}", "issuer")
+                self.add_multi_cell(cert.issuer, "issuer")
 
                 # Add issue date and credential ID
-                self.add_cell(f"Issued On: {cert.issued_on}", "details")
-                self.add_cell(f"Credential ID: {cert.credential_id}", "details")
+                self.add_multi_cell(cert.issued_on, "details")
+                self.add_multi_cell(cert.credential_id, "details")
 
                 # Add spacing between certifications
                 self.add_cell("", "details", height=5)

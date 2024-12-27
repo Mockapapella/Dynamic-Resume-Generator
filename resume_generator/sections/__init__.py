@@ -9,6 +9,7 @@ from resume_generator.sections.jobs import JobsSection
 from resume_generator.sections.languages import LanguagesSection
 from resume_generator.sections.projects import ProjectsSection
 from resume_generator.sections.volunteering import VolunteeringSection
+from resume_generator.sections.articles import ArticlesSection
 
 __all__ = [
     "AwardsSection",
@@ -20,4 +21,5 @@ __all__ = [
     "LanguagesSection",
     "ProjectsSection",
     "VolunteeringSection",
+    "ArticlesSection",
 ]

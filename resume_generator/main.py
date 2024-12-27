@@ -15,6 +15,7 @@ import yaml
 from fpdf import FPDF
 
 from resume_generator.schemas import ApplicationInfo
+from resume_generator.schemas import Articles
 from resume_generator.schemas import Education
 from resume_generator.schemas import General
 from resume_generator.schemas import HonorsAndAwards
@@ -23,6 +24,7 @@ from resume_generator.schemas import Languages
 from resume_generator.schemas import LicensesAndCertifications
 from resume_generator.schemas import Projects
 from resume_generator.schemas import VolunteerExperience
+from resume_generator.sections import ArticlesSection
 from resume_generator.sections import AwardsSection
 from resume_generator.sections import CertificationsSection
 from resume_generator.sections import EducationSection
@@ -106,6 +108,10 @@ def load_resume_data():
             Languages.model_validate(lang_data)
             for lang_data in resume_data["Languages"].values()
         ]
+        articles = [
+            Articles.model_validate(article_data)
+            for article_data in resume_data["Articles"].values()
+        ]
 
         return (
             application_info,
@@ -117,6 +123,7 @@ def load_resume_data():
             projects,
             awards,
             languages,
+            articles,
         )
     except KeyError as e:
         raise ValueError(f"Missing required section in resume.json: {str(e)}")
@@ -213,6 +220,7 @@ def main():
             projects,
             awards,
             languages,
+            articles,
         ) = resume_data
 
         # Setup PDF with configuration
@@ -227,13 +235,14 @@ def main():
         # Generate resume sections using section handlers
         sections = [
             GeneralSection(pdf, general, styles, template_config),
-            JobsSection(pdf, jobs, styles, template_config),
-            EducationSection(pdf, schools, styles, template_config),
-            CertificationsSection(pdf, certifications, styles, template_config),
-            VolunteeringSection(pdf, volunteer_experiences, styles, template_config),
             ProjectsSection(pdf, projects, styles, template_config),
-            AwardsSection(pdf, awards, styles, template_config),
-            LanguagesSection(pdf, languages, styles, template_config),
+            ArticlesSection(pdf, articles, styles, template_config),
+            JobsSection(pdf, jobs, styles, template_config),
+            # EducationSection(pdf, schools, styles, template_config),
+            # CertificationsSection(pdf, certifications, styles, template_config),
+            # VolunteeringSection(pdf, volunteer_experiences, styles, template_config),
+            # AwardsSection(pdf, awards, styles, template_config),
+            # LanguagesSection(pdf, languages, styles, template_config),
         ]
 
         # Add each section to the PDF

@@ -275,3 +275,23 @@ class Languages(BaseModel):
                 f'Invalid proficiency level. Must be one of: {", ".join(PROFICIENCY_LEVELS)}'
             )
         return v
+
+
+class Articles(BaseModel):
+    """Model for storing article information."""
+
+    include: bool = True
+    title: str = Field(..., min_length=1)
+    publication: str = Field(..., min_length=1)
+    date: str
+    url: Optional[HttpUrl] = None
+    description: Optional[str] = None
+
+    @field_validator("date")
+    def validate_date(cls, v):
+        """Validate date format as YYYY-MM."""
+        try:
+            datetime.strptime(v, "%Y-%m")
+            return v
+        except ValueError:
+            raise ValueError("Invalid date format. Use YYYY-MM")
