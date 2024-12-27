@@ -21,7 +21,7 @@ resume_generator/
   └── schemas.py       # Pydantic models for data validation
 
 tests/
-  ├── test_demo_json.py
+  ├── test_demo_json.py      # Validates demo.json against schemas
   └── test_resume_generator.py
 
 fonts/                 # TTF font files
@@ -76,9 +76,38 @@ This project uses [uv](https://github.com/astral-sh/uv) for dependency managemen
 
 1. Create your resume:
 
-   - Copy `demo.json` to `resume.json`
-   - Fill in your information following the demo format
-   - Use `"include": true/false` to control what appears in the generated PDF
+   Create a `resume.json` file with the following structure:
+   ```json
+   {
+     "ApplicationInfo": {
+       "company": "Company Name",
+       "job": "Job Title"
+     },
+     "General": {
+       "name": "Your Name",
+       "title": "Your Title",
+       "location": "Your Location",
+       "email": "your.email@example.com",
+       "cell_number": "+1234567890",
+       "portfolio": "https://your-portfolio.com",
+       "linkedin": "https://linkedin.com/in/your-profile",
+       "github": "https://github.com/your-username",
+       "description": "Your professional summary"
+     },
+     "Jobs": {
+       "job1": {
+         "include": true,
+         "title": "Job Title",
+         "company": "Company Name",
+         "employment_type": "Full-time",
+         "duration": ["2023-01", "2024-01"],
+         "description": "Job description",
+         "skills": ["Skill 1", "Skill 2"]
+       }
+     }
+   }
+   ```
+   Use `"include": true/false` to control what appears in the generated PDF. See the schema in `resume_generator/schemas.py` for all available sections and fields.
 
 ### Development Setup
 
@@ -292,4 +321,6 @@ Areas for contribution:
 
 ## Note
 
-The script expects all top-level sections in `resume.json` to be present, even if empty. See `demo.json` for the expected structure.
+The script expects all top-level sections in `resume.json` to be present, even if empty. For reference:
+- See `resume_generator/schemas.py` for the complete structure and validation rules
+- See `demo.json` for a working example that's validated by our test suite

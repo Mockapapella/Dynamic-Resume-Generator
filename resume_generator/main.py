@@ -13,8 +13,6 @@ from datetime import datetime
 
 import yaml
 from fpdf import FPDF
-from fpdf import XPos
-from fpdf import YPos
 
 from resume_generator.schemas import ApplicationInfo
 from resume_generator.schemas import Education
@@ -25,6 +23,15 @@ from resume_generator.schemas import Languages
 from resume_generator.schemas import LicensesAndCertifications
 from resume_generator.schemas import Projects
 from resume_generator.schemas import VolunteerExperience
+from resume_generator.sections import AwardsSection
+from resume_generator.sections import CertificationsSection
+from resume_generator.sections import EducationSection
+from resume_generator.sections import GeneralSection
+from resume_generator.sections import JobsSection
+from resume_generator.sections import LanguagesSection
+from resume_generator.sections import ProjectsSection
+from resume_generator.sections import VolunteeringSection
+from resume_generator.styles import modern_styles
 
 warnings.simplefilter("default", DeprecationWarning)
 
@@ -171,378 +178,6 @@ def ensure_output_directory(config, application_info):
         raise RuntimeError(f"Error creating output directory: {str(e)}")
 
 
-def add_general_information(pdf, config, general):
-    """Add general personal information section to the PDF.
-
-    Args:
-        pdf (FPDF): PDF document object.
-        config (dict): Template configuration dictionary.
-        general (General): General personal information.
-
-    Returns:
-        FPDF: Updated PDF document object.
-    """
-    cell_width = config["cell_width"]
-    cell_height = config["cell_height"]
-    pdf.set_font(size=14, style="U")
-    pdf.cell(cell_width, 10, text=f"{general.name}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    pdf.set_font(size=16)
-    pdf.cell(cell_width, 8, text=f"{general.title}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    pdf.set_font(size=8)
-    pdf.cell(
-        cell_width, cell_height, text=f"{general.location}", new_x=XPos.LMARGIN, new_y=YPos.NEXT
-    )
-    pdf.cell(cell_width, cell_height, text=f"{general.email}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    pdf.cell(
-        cell_width, cell_height, text=f"{general.cell_number}", new_x=XPos.LMARGIN, new_y=YPos.NEXT
-    )
-    pdf.cell(
-        cell_width, cell_height, text=f"{general.portfolio}", new_x=XPos.LMARGIN, new_y=YPos.NEXT
-    )
-    pdf.cell(
-        cell_width, cell_height, text=f"{general.linkedin}", new_x=XPos.LMARGIN, new_y=YPos.NEXT
-    )
-    pdf.cell(cell_width, cell_height, text=f"{general.github}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-
-    # Handle the description with text wrapping
-    pdf.set_font(size=14)
-    pdf.cell(cell_width, 8, text="Description", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    pdf.set_font(size=8)
-    pdf.multi_cell(
-        cell_width, cell_height, text=f"{general.description}", new_x=XPos.LMARGIN, new_y=YPos.NEXT
-    )
-
-    return pdf
-
-
-def add_jobs(pdf, config, jobs):
-    """Add work experience section to the PDF.
-
-    Args:
-        pdf (FPDF): PDF document object.
-        config (dict): Template configuration dictionary.
-        jobs (list): List of Jobs objects.
-
-    Returns:
-        FPDF: Updated PDF document object.
-    """
-    cell_width = config["cell_width"]
-    cell_height = config["cell_height"]
-    pdf.set_font(size=14, style="U")
-    pdf.cell(cell_width, 8, text="Jobs", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    for job in jobs:
-        if job.include is True:
-            pdf.set_font(size=12)
-            pdf.cell(cell_width, 5, text=f"{job.title}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-            pdf.set_font(size=10)
-            pdf.cell(
-                cell_width, cell_height, text=f"{job.company}", new_x=XPos.LMARGIN, new_y=YPos.NEXT
-            )
-            pdf.set_font(size=8)
-            pdf.cell(
-                cell_width,
-                cell_height,
-                text=f"Employment Type: {job.employment_type}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.cell(
-                cell_width,
-                cell_height,
-                text=f"Duration: {job.duration[0]} - {job.duration[1]}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.multi_cell(
-                cell_width,
-                cell_height,
-                text=f"Description: {job.description}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            if job.skills:
-                pdf.cell(
-                    cell_width,
-                    cell_height,
-                    text=f"Skills: {', '.join([x for x in job.skills])}",
-                    new_x=XPos.LMARGIN,
-                    new_y=YPos.NEXT,
-                )
-            pdf.cell(cell_width, 5, text="", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    return pdf
-
-
-def add_education(pdf, config, schools):
-    """Add education section to the PDF.
-
-    Args:
-        pdf (FPDF): PDF document object.
-        config (dict): Template configuration dictionary.
-        schools (list): List of Education objects.
-
-    Returns:
-        FPDF: Updated PDF document object.
-    """
-    cell_width = config["cell_width"]
-    cell_height = config["cell_height"]
-    pdf.set_font(size=14, style="U")
-    pdf.cell(cell_width, 8, text="Education", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    for school in schools:
-        if school.include is True:
-            pdf.set_font(size=12)
-            pdf.cell(cell_width, 5, text=f"{school.school}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-            pdf.set_font(size=10)
-            pdf.cell(
-                cell_width, cell_height, text=f"{school.field}", new_x=XPos.LMARGIN, new_y=YPos.NEXT
-            )
-            pdf.set_font(size=8)
-            pdf.cell(
-                cell_width,
-                cell_height,
-                text=f"Duration: {school.duration[0]} - {school.duration[1]}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            if school.activities_and_societies:
-                pdf.cell(
-                    cell_width,
-                    cell_height,
-                    text=f"Clubs: {', '.join([x for x in school.activities_and_societies])}",
-                    new_x=XPos.LMARGIN,
-                    new_y=YPos.NEXT,
-                )
-            pdf.cell(cell_width, 5, text="", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-
-    return pdf
-
-
-def add_certification(pdf, config, certifications):
-    """Add certifications section to the PDF.
-
-    Args:
-        pdf (FPDF): PDF document object.
-        config (dict): Template configuration dictionary.
-        certifications (list): List of LicensesAndCertifications objects.
-
-    Returns:
-        FPDF: Updated PDF document object.
-    """
-    cell_width = config["cell_width"]
-    cell_height = config["cell_height"]
-    pdf.set_font(size=14, style="U")
-    pdf.cell(cell_width, 8, text="Certifications", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    for cert in certifications:
-        if cert.include is True:
-            pdf.set_font(size=12)
-            pdf.cell(cell_width, 5, text=f"{cert.name}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-            pdf.set_font(size=10)
-            pdf.cell(
-                cell_width,
-                cell_height,
-                text=f"Issued By: {cert.issuer}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.set_font(size=8)
-            pdf.cell(
-                cell_width,
-                cell_height,
-                text=f"Issued On: {cert.issued_on}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.cell(
-                cell_width,
-                cell_height,
-                text=f"Credential ID: {cert.credential_id}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.cell(cell_width, 5, text="", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    return pdf
-
-
-def add_volunteering(pdf, config, volunteer_experiences):
-    """Add volunteering section to the PDF.
-
-    Args:
-        pdf (FPDF): PDF document object.
-        config (dict): Template configuration dictionary.
-        volunteer_experiences (list): List of VolunteerExperience objects.
-
-    Returns:
-        FPDF: Updated PDF document object.
-    """
-    cell_width = config["cell_width"]
-    cell_height = config["cell_height"]
-    pdf.set_font(size=14, style="U")
-    pdf.cell(cell_width, 8, text="Volunteering", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    for experience in volunteer_experiences:
-        if experience.include is True:
-            pdf.set_font(size=12)
-            pdf.cell(
-                cell_width,
-                5,
-                text=f"{experience.organization}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.set_font(size=10)
-            pdf.cell(
-                cell_width,
-                cell_height,
-                text=f"{experience.role}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.set_font(size=8)
-            pdf.cell(
-                cell_width,
-                cell_height,
-                text=f"{experience.cause}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.cell(
-                cell_width,
-                cell_height,
-                text=f"Duration: {experience.duration[0]} - {experience.duration[1]}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.multi_cell(
-                cell_width,
-                cell_height,
-                text=f"Description: {experience.description}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.cell(cell_width, 5, text="", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    return pdf
-
-
-def add_projects(pdf, config, projects):
-    """Add projects section to the PDF.
-
-    Args:
-        pdf (FPDF): PDF document object.
-        config (dict): Template configuration dictionary.
-        projects (list): List of Projects objects.
-
-    Returns:
-        FPDF: Updated PDF document object.
-    """
-    cell_width = config["cell_width"]
-    cell_height = config["cell_height"]
-    pdf.set_font(size=14, style="U")
-    pdf.cell(cell_width, 8, text="Projects", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    for project in projects:
-        if project.include is True:
-            pdf.set_font(size=12)
-            pdf.cell(cell_width, 5, text=f"{project.name}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-            pdf.set_font(size=10)
-            pdf.write_html(f'<a href="{project.link}">{project.link}</a>')
-            pdf.set_font(size=8)
-            pdf.cell(
-                cell_width,
-                cell_height,
-                text=f"Duration: {project.duration[0]} - {project.duration[1]}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.multi_cell(
-                cell_width,
-                cell_height,
-                text=f"Description: {project.description}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            if project.skills:
-                pdf.cell(
-                    cell_width,
-                    cell_height,
-                    text=f"Skills: {', '.join([x for x in project.skills])}",
-                    new_x=XPos.LMARGIN,
-                    new_y=YPos.NEXT,
-                )
-            pdf.cell(cell_width, 5, text="", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    return pdf
-
-
-def add_awards(pdf, config, awards):
-    """Add awards section to the PDF.
-
-    Args:
-        pdf (FPDF): PDF document object.
-        config (dict): Template configuration dictionary.
-        awards (list): List of HonorsAndAwards objects.
-
-    Returns:
-        FPDF: Updated PDF document object.
-    """
-    cell_width = config["cell_width"]
-    cell_height = config["cell_height"]
-    pdf.set_font(size=14, style="U")
-    pdf.cell(cell_width, 8, text="Awards", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    for award in awards:
-        if award.include is True:
-            pdf.set_font(size=12)
-            pdf.cell(cell_width, 5, text=f"{award.title}", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-            pdf.set_font(size=10)
-            pdf.cell(
-                cell_width, cell_height, text=f"{award.issuer}", new_x=XPos.LMARGIN, new_y=YPos.NEXT
-            )
-            pdf.set_font(size=8)
-            pdf.cell(
-                cell_width,
-                cell_height,
-                text=f"{award.issued_on}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.multi_cell(
-                cell_width,
-                cell_height,
-                text=f"Description: {award.description}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-            pdf.cell(cell_width, 5, text="", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    return pdf
-
-
-def add_languages(pdf, config, languages):
-    """Add languages section to the PDF.
-
-    Args:
-        pdf (FPDF): PDF document object.
-        config (dict): Template configuration dictionary.
-        languages (list): List of Languages objects.
-
-    Returns:
-        FPDF: Updated PDF document object.
-    """
-    cell_width = config["cell_width"]
-    cell_height = config["cell_height"]
-    pdf.set_font(size=14, style="U")
-    pdf.cell(cell_width, 8, text="Languages", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    for language in languages:
-        if language.include is True:
-            pdf.set_font(size=12)
-            pdf.cell(
-                cell_width, 5, text=f"{language.language}", new_x=XPos.LMARGIN, new_y=YPos.NEXT
-            )
-            pdf.set_font(size=10)
-            pdf.cell(
-                cell_width,
-                cell_height,
-                text=f"{language.proficiency}",
-                new_x=XPos.LMARGIN,
-                new_y=YPos.NEXT,
-            )
-    return pdf
-
-
 def main():
     """Generate a customized PDF resume from JSON data and YAML configuration.
 
@@ -578,15 +213,24 @@ def main():
         # Create output directory
         output_dir = ensure_output_directory(config, application_info)
 
-        # Generate resume sections
-        pdf = add_general_information(pdf, template_config, general)
-        pdf = add_jobs(pdf, template_config, jobs)
-        pdf = add_education(pdf, template_config, schools)
-        pdf = add_certification(pdf, template_config, certifications)
-        pdf = add_volunteering(pdf, template_config, volunteer_experiences)
-        pdf = add_projects(pdf, template_config, projects)
-        pdf = add_awards(pdf, template_config, awards)
-        pdf = add_languages(pdf, template_config, languages)
+        # Get styles based on template
+        styles = modern_styles  # For now, we only have modern style
+
+        # Generate resume sections using section handlers
+        sections = [
+            GeneralSection(pdf, general, styles, template_config),
+            JobsSection(pdf, jobs, styles, template_config),
+            EducationSection(pdf, schools, styles, template_config),
+            CertificationsSection(pdf, certifications, styles, template_config),
+            VolunteeringSection(pdf, volunteer_experiences, styles, template_config),
+            ProjectsSection(pdf, projects, styles, template_config),
+            AwardsSection(pdf, awards, styles, template_config),
+            LanguagesSection(pdf, languages, styles, template_config),
+        ]
+
+        # Add each section to the PDF
+        for section in sections:
+            section.add_section()
 
         # Generate output filename
         output_file = config["file_name_template"].format(
