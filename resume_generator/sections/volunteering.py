@@ -9,7 +9,9 @@ from resume_generator.sections.base import BaseSection
 class VolunteeringSection(BaseSection):
     """Handler for the volunteering section of the resume."""
 
-    def __init__(self, pdf, data: List[VolunteerExperience], styles: dict, config: dict):
+    def __init__(
+        self, pdf, data: List[VolunteerExperience], styles: dict, config: dict
+    ):
         """Initialize the volunteering section handler.
 
         Args:
@@ -38,14 +40,13 @@ class VolunteeringSection(BaseSection):
                 self.add_cell(experience.cause, "details")
                 self.add_cell(
                     f"Duration: {experience.duration[0]} - {experience.duration[1]}",
-                    "details"
+                    "details",
                 )
 
                 # Add description if available
                 if experience.description:
                     self.add_multi_cell(
-                        f"Description: {experience.description}",
-                        "details"
+                        f"Description: {experience.description}", "details"
                     )
 
                 # Add spacing between experiences

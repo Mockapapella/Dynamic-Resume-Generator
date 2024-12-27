@@ -36,8 +36,7 @@ class EducationSection(BaseSection):
 
                 # Add duration
                 self.add_cell(
-                    f"Duration: {school.duration[0]} - {school.duration[1]}",
-                    "details"
+                    f"Duration: {school.duration[0]} - {school.duration[1]}", "details"
                 )
 
                 # Add degree if available
@@ -52,15 +51,12 @@ class EducationSection(BaseSection):
                 if school.activities_and_societies:
                     self.add_cell(
                         f"Clubs: {', '.join(school.activities_and_societies)}",
-                        "details"
+                        "details",
                     )
 
                 # Add description if available
                 if school.description:
-                    self.add_multi_cell(
-                        f"Description: {school.description}",
-                        "details"
-                    )
+                    self.add_multi_cell(f"Description: {school.description}", "details")
 
                 # Add spacing between schools
                 self.add_cell("", "details", height=5)

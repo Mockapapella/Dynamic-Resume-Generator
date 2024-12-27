@@ -9,7 +9,9 @@ from resume_generator.sections.base import BaseSection
 class CertificationsSection(BaseSection):
     """Handler for the certifications section of the resume."""
 
-    def __init__(self, pdf, data: List[LicensesAndCertifications], styles: dict, config: dict):
+    def __init__(
+        self, pdf, data: List[LicensesAndCertifications], styles: dict, config: dict
+    ):
         """Initialize the certifications section handler.
 
         Args:

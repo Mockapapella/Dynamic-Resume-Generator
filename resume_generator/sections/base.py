@@ -51,7 +51,7 @@ class BaseSection:
             height or self.cell_height,
             text=text,
             new_x=XPos.LMARGIN,
-            new_y=YPos.NEXT
+            new_y=YPos.NEXT,
         )
 
     def add_multi_cell(self, text: str, style_key: str) -> None:
@@ -67,7 +67,7 @@ class BaseSection:
             self.cell_height,
             text=text,
             new_x=XPos.LMARGIN,
-            new_y=YPos.NEXT
+            new_y=YPos.NEXT,
         )
 
     def add_section(self) -> None:

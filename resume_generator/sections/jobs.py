@@ -37,23 +37,16 @@ class JobsSection(BaseSection):
                 # Add employment type and duration
                 self.add_cell(f"Employment Type: {job.employment_type}", "details")
                 self.add_cell(
-                    f"Duration: {job.duration[0]} - {job.duration[1]}",
-                    "details"
+                    f"Duration: {job.duration[0]} - {job.duration[1]}", "details"
                 )
 
                 # Add description if available
                 if job.description:
-                    self.add_multi_cell(
-                        f"Description: {job.description}",
-                        "details"
-                    )
+                    self.add_multi_cell(f"Description: {job.description}", "details")
 
                 # Add skills if available
                 if job.skills:
-                    self.add_cell(
-                        f"Skills: {', '.join(job.skills)}",
-                        "details"
-                    )
+                    self.add_cell(f"Skills: {', '.join(job.skills)}", "details")
 
                 # Add spacing between jobs
                 self.add_cell("", "details", height=5)

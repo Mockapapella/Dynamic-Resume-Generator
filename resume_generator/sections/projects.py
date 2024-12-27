@@ -39,21 +39,15 @@ class ProjectsSection(BaseSection):
                 # Add duration
                 self.add_cell(
                     f"Duration: {project.duration[0]} - {project.duration[1]}",
-                    "details"
+                    "details",
                 )
 
                 # Add description
-                self.add_multi_cell(
-                    f"Description: {project.description}",
-                    "details"
-                )
+                self.add_multi_cell(f"Description: {project.description}", "details")
 
                 # Add skills if available
                 if project.skills:
-                    self.add_cell(
-                        f"Skills: {', '.join(project.skills)}",
-                        "details"
-                    )
+                    self.add_cell(f"Skills: {', '.join(project.skills)}", "details")
 
                 # Add spacing between projects
                 self.add_cell("", "details", height=5)

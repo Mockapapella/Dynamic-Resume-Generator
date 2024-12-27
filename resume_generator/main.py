@@ -75,11 +75,16 @@ def load_resume_data():
 
     try:
         # Validate and parse resume sections
-        application_info = ApplicationInfo.model_validate(resume_data["ApplicationInfo"])
+        application_info = ApplicationInfo.model_validate(
+            resume_data["ApplicationInfo"]
+        )
         general = General.model_validate(resume_data["General"])
-        jobs = [Jobs.model_validate(job_data) for job_data in resume_data["Jobs"].values()]
+        jobs = [
+            Jobs.model_validate(job_data) for job_data in resume_data["Jobs"].values()
+        ]
         schools = [
-            Education.model_validate(edu_data) for edu_data in resume_data["Education"].values()
+            Education.model_validate(edu_data)
+            for edu_data in resume_data["Education"].values()
         ]
         certifications = [
             LicensesAndCertifications.model_validate(cert_data)
@@ -90,14 +95,16 @@ def load_resume_data():
             for exp_data in resume_data["VolunteerExperience"].values()
         ]
         projects = [
-            Projects.model_validate(proj_data) for proj_data in resume_data["Projects"].values()
+            Projects.model_validate(proj_data)
+            for proj_data in resume_data["Projects"].values()
         ]
         awards = [
             HonorsAndAwards.model_validate(award_data)
             for award_data in resume_data["HonorsAndAwards"].values()
         ]
         languages = [
-            Languages.model_validate(lang_data) for lang_data in resume_data["Languages"].values()
+            Languages.model_validate(lang_data)
+            for lang_data in resume_data["Languages"].values()
         ]
 
         return (
@@ -145,7 +152,8 @@ def setup_pdf(config):
 
         pdf.set_fallback_fonts(["TwitterEmojis"])
         pdf.set_font(
-            template_config["fonts"]["primary"], size=template_config["font_size"]["normal"]
+            template_config["fonts"]["primary"],
+            size=template_config["font_size"]["normal"],
         )
 
         return pdf, template_config

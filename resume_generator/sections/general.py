@@ -33,7 +33,7 @@ class GeneralSection(BaseSection):
             self.data.cell_number,
             self.data.portfolio,
             self.data.linkedin,
-            self.data.github
+            self.data.github,
         ]
 
         # Filter out None values and convert to strings

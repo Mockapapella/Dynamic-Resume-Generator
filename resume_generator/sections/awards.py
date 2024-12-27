@@ -38,10 +38,7 @@ class AwardsSection(BaseSection):
                 self.add_cell(f"Issued On: {award.issued_on}", "details")
 
                 # Add description
-                self.add_multi_cell(
-                    f"Description: {award.description}",
-                    "details"
-                )
+                self.add_multi_cell(f"Description: {award.description}", "details")
 
                 # Add spacing between awards
                 self.add_cell("", "details", height=5)
