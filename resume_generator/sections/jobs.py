@@ -41,12 +41,12 @@ class JobsSection(BaseSection):
                 # Add description if available
                 if job.description:
                     self.add_multi_cell(job.description, "details")
-                    # Add separator line
-                    self.add_cell("―" * 30, "details", height=2)
 
                 # Add skills if available
                 if job.skills:
-                    self.format_labeled_text("Skills:", ', '.join(job.skills), "details")
+                    self.format_labeled_text(
+                        "Skills:", ", ".join(job.skills), "details"
+                    )
 
                 # Add spacing between jobs
                 self.add_cell("", "details", height=5)

@@ -37,16 +37,18 @@ class ProjectsSection(BaseSection):
                     self.pdf.write_html(f'<a href="{project.link}">{project.link}</a>')
 
                 # Add duration
-                self.add_multi_cell(f"{project.duration[0]} - {project.duration[1]}", "details")
+                self.add_multi_cell(
+                    f"{project.duration[0]} - {project.duration[1]}", "details"
+                )
 
                 # Add description
                 self.add_multi_cell(project.description, "details")
-                # Add separator line
-                self.add_cell("―" * 30, "details", height=2)
 
                 # Add skills if available
                 if project.skills:
-                    self.format_labeled_text("Skills:", ', '.join(project.skills), "details")
+                    self.format_labeled_text(
+                        "Skills:", ", ".join(project.skills), "details"
+                    )
 
                 # Add spacing between projects
                 self.add_cell("", "details", height=5)
